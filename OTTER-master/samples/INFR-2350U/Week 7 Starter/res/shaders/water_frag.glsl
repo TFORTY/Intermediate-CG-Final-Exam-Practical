@@ -56,6 +56,9 @@ uniform float u_midCutoff;
 
 out vec4 frag_color;
 
+//For lighting toggles
+uniform int u_Condition;
+
 float linearize_depth(float d, float zNear, float zFar)
 {
 	float z_n = 2.0 * d - 1.0;
@@ -102,7 +105,8 @@ void main() {
 	vec3 h        = normalize(lightDir + viewDir);
 
 	// Get the specular power from the specular map
-	float texSpec = texture(s_Specular, inUV).x;
+	//float texSpec = texture(s_Specular, inUV).x;
+	float texSpec = 1.0f;
 	float spec = pow(max(dot(N, h), 0.0), 4.0); // Shininess coefficient (can be a uniform)
 	vec3 specular = sun._lightSpecularPow * texSpec * spec * sun._lightCol.xyz; // Can also use a specular color
 
@@ -111,13 +115,55 @@ void main() {
 	vec4 textureColor2 = texture(s_Diffuse2, inUV);
 	vec4 textureColor = mix(textureColor1, textureColor2, u_TextureMix);
 
-	vec3 result = (
-		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
-		(diffuse + specular) // light factors from our single light
-		) * inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
-		* (shoreColorMod
-		+ (u_midColor.rgb * midColorMod)
-		+ (u_deepestColor.rgb * deepColorMod)); // Object color
+//	vec3 result = (
+//		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+//		(diffuse + specular) // light factors from our single light
+//		) * inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
+//		* (shoreColorMod
+//		+ (u_midColor.rgb * midColorMod)
+//		+ (u_deepestColor.rgb * deepColorMod)); // Object color
+
+	vec3 result;
+
+	switch(u_Condition)
+	{
+		//No lighting
+		case 0:
+			result = inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
+			* (shoreColorMod
+			+ (u_midColor.rgb * midColorMod)
+			+ (u_deepestColor.rgb * deepColorMod)); // Object color
+			break;
+		//Ambient
+		case 1:
+			result = (
+			(sun._ambientPow * sun._ambientCol.xyz)) // global ambient light
+			* inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
+			* (shoreColorMod
+			+ (u_midColor.rgb * midColorMod)
+			+ (u_deepestColor.rgb * deepColorMod)); // Object color
+			break;
+		//Specular
+		case 2:
+			result = (specular) * 
+			inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
+			* (shoreColorMod
+			+ (u_midColor.rgb * midColorMod)
+			+ (u_deepestColor.rgb * deepColorMod)); // Object color
+			break;
+		//Amb + Spec + Diffuse
+		case 3:
+			result = (
+			(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+			(diffuse + specular) // light factors from our single light
+			) * inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
+			* (shoreColorMod
+			+ (u_midColor.rgb * midColorMod)
+			+ (u_deepestColor.rgb * deepColorMod)); // Object color
+			break;
+	}
+
+
 
 	//frag_color = vec4(depthDiff, depthDiff, depthDiff, 1.0);
 	frag_color = vec4(result, u_waterTransparency

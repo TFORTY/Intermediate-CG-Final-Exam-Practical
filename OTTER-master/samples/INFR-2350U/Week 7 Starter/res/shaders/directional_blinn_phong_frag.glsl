@@ -38,6 +38,9 @@ uniform sampler2D s_Specular;
 uniform float u_TextureMix;
 uniform vec3  u_CamPos;
 
+//For lighting toggles
+uniform int u_Condition;
+
 out vec4 frag_color;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
@@ -55,7 +58,20 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 	float currentDepth = projectionCoordinates.z;
 
 	//Check whether there's a shadow
-	float shadow = currentDepth - sun._shadowBias > closestDepth ? 1.0 : 0.0;
+	//float shadow = currentDepth - sun._shadowBias > closestDepth ? 1.0 : 0.0;
+
+	//PCF Calculation
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(s_ShadowMap, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(s_ShadowMap, projectionCoordinates.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - sun._shadowBias > pcfDepth ? 1.0 : 0.0;
+		}
+	}
+	shadow /= 9.0;
 
 	return shadow; 
 }
@@ -73,7 +89,8 @@ void main() {
 	vec3 h        = normalize(lightDir + viewDir);
 
 	// Get the specular power from the specular map
-	float texSpec = texture(s_Specular, inUV).x;
+	//float texSpec = texture(s_Specular, inUV).x;
+	float texSpec = 1.0f;
 	float spec = pow(max(dot(N, h), 0.0), 4.0); // Shininess coefficient (can be a uniform)
 	vec3 specular = sun._lightSpecularPow * texSpec * spec * sun._lightCol.xyz; // Can also use a specular color
 
@@ -84,10 +101,40 @@ void main() {
 
 	float shadow = ShadowCalculation(inFragPosLightSpace);
 
-	vec3 result = (
-		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
-		(1.0 - shadow) * (diffuse + specular) // light factors from our single light
-		) * inColor * textureColor.rgb; // Object color
+//	vec3 result = (
+//		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+//		(1.0 - shadow) * (diffuse + specular) // light factors from our single light
+//		) * inColor * textureColor.rgb; // Object color
+
+	vec3 result;
+
+	switch(u_Condition)
+	{
+		//No lighting
+		case 0:
+			result = inColor * textureColor.rgb;
+			break;
+		//Ambient
+		case 1:
+			result = (
+			(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+			(1.0 - shadow)) *
+			inColor * textureColor.rgb; // Object color
+			break;
+		//Specular
+		case 2:
+			result = (
+			(specular) * (1.0 - shadow)) *
+			inColor * textureColor.rgb;
+			break;
+		//Amb + Spec + Diffuse
+		case 3:
+			result = (
+			(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+			(1.0 - shadow) * (diffuse + specular) // light factors from our single light
+			) * inColor * textureColor.rgb; // Object color
+			break;
+	}
 
 	frag_color = vec4(result, textureColor.a);
 }

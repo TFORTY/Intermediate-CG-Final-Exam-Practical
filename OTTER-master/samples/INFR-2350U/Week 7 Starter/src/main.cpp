@@ -41,6 +41,7 @@ int main() {
 
 	//Variables for toggles
 	bool isTexturesOn = true;
+	int lightToggleMode = 0;
 
 	BackendHandler::InitAll();
 
@@ -49,7 +50,7 @@ int main() {
 	glDebugMessageCallback(BackendHandler::GlDebugMessage, nullptr);
 
 	// Enable texturing
-	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D); 
 
 	// Push another scope so most memory should be freed *before* we exit the app
 	{
@@ -58,11 +59,11 @@ int main() {
 		passthroughShader->LoadShaderPartFromFile("shaders/passthrough_vert.glsl", GL_VERTEX_SHADER);
 		passthroughShader->LoadShaderPartFromFile("shaders/passthrough_frag.glsl", GL_FRAGMENT_SHADER);
 		passthroughShader->Link();
-
+		 
 		Shader::sptr simpleDepthShader = Shader::Create();
 		simpleDepthShader->LoadShaderPartFromFile("shaders/simple_depth_vert.glsl", GL_VERTEX_SHADER);
 		simpleDepthShader->LoadShaderPartFromFile("shaders/simple_depth_frag.glsl", GL_FRAGMENT_SHADER);
-		simpleDepthShader->Link();
+		simpleDepthShader->Link(); 
 
 		// Load our shaders
 		Shader::sptr shader = Shader::Create();
@@ -112,24 +113,64 @@ int main() {
 
 		directionalLightBuffer.Bind(0);
 
+		//Sets the toggle condition
+		int condition = 0;
+		shader->SetUniform("u_Condition", condition);
+		groundShader->SetUniform("u_Condition", condition);
+		waterShader->SetUniform("u_Condition", condition);
+
 		//Basic effect for drawing to
-		PostEffect* basicEffect;
+		PostEffect* basicEffect; 
 		Framebuffer* shadowBuffer;
 
 		//Post Processing Effects
 		int activeEffect = 0;
-		std::vector<PostEffect*> effects;
+		std::vector<PostEffect*> effects; 
 		SepiaEffect* sepiaEffect;
 		GreyscaleEffect* greyscaleEffect;
-		ColorCorrectEffect* colorCorrectEffect;
-		
-		// We'll add some ImGui controls to control our shader
+		ColorCorrectEffect* colorCorrectEffect;  
+		  
+		// We'll add some ImGui controls to control our shader 
 		BackendHandler::imGuiCallbacks.push_back([&]() {
 			if (ImGui::CollapsingHeader("Exam Controls"))
-			{
+			{ 
+				//Lighting toggles (MAKE CHECKBOXES??)
+				if (ImGui::Button("No Lighting")) 
+				{ 
+					lightToggleMode = 0;
+					shader->SetUniform("u_Condition", 0);
+					groundShader->SetUniform("u_Condition", 0);
+					waterShader->SetUniform("u_Condition", 0);
+				}
+				if (ImGui::Button("Ambient Lighting"))
+				{
+					lightToggleMode = 1;
+					shader->SetUniform("u_Condition", 1);
+					groundShader->SetUniform("u_Condition", 1);
+					waterShader->SetUniform("u_Condition", 1);
+				}
+				if (ImGui::Button("Specular Lighting"))
+				{
+					lightToggleMode = 2;
+					shader->SetUniform("u_Condition", 2);
+					groundShader->SetUniform("u_Condition", 2);
+					waterShader->SetUniform("u_Condition", 2);
+				}
+				if (ImGui::Button("Ambient + Specular Lighting")) // + Diffuse
+				{
+					lightToggleMode = 3;
+					shader->SetUniform("u_Condition", 3);
+					groundShader->SetUniform("u_Condition", 3);
+					waterShader->SetUniform("u_Condition", 3);
+				}
+				if (ImGui::Button("Ambient + Specular + DOF"))
+				{
+					//Include additional controls to adjust DOF
+				}
+
 				//Toggles textures on/off
 				if (ImGui::Checkbox("Toggle Textures", &isTexturesOn))
-				{				
+				{
 				}
 			}
 
@@ -290,13 +331,15 @@ int main() {
 			scene->Registry().group<RendererComponent>(entt::get_t<Transform>());
 
 		// Create a material and set some properties for it
+		//MONKEY
 		ShaderMaterial::sptr stoneMat = ShaderMaterial::Create();  
-		stoneMat->Shader = shader;
-		stoneMat->Set("s_Diffuse", stone);
+		stoneMat->Shader = shader; 
+		stoneMat->Set("s_Diffuse", stone); 
 		stoneMat->Set("s_Specular", stoneSpec);
 		stoneMat->Set("u_Shininess", 2.0f);
 		stoneMat->Set("u_TextureMix", 0.0f); 
 
+		//GROUND
 		grassMat->Set("s_Diffuse", grass);
 		grassMat->Set("s_Specular", noSpec);
 		grassMat->Set("s_Height", heightMap);
@@ -304,6 +347,7 @@ int main() {
 		grassMat->Set("u_Shininess", 2.0f);
 		grassMat->Set("u_TextureMix", 0.0f);
 
+		//WATER
 		waterMat->Set("s_Diffuse", water);
 		waterMat->Set("s_Specular", noSpec);
 		waterMat->Set("u_waterTransparency", waterTransparency);
@@ -316,24 +360,10 @@ int main() {
 		waterMat->Set("u_Shininess", 8.0f);
 		waterMat->Set("u_TextureMix", 0.0f);
 
+		//No Texture Material
 		ShaderMaterial::sptr noTex = ShaderMaterial::Create();
 		noTex->Shader = shader;
 		noTex->Set("s_Diffuse", texture2);
-
-		/*ShaderMaterial::sptr boxMat = ShaderMaterial::Create();
-		boxMat->Shader = shader;
-		boxMat->Set("s_Diffuse", box);
-		boxMat->Set("s_Specular", boxSpec);
-		boxMat->Set("u_Shininess", 8.0f);
-		boxMat->Set("u_TextureMix", 0.0f);
-
-		ShaderMaterial::sptr simpleFloraMat = ShaderMaterial::Create();
-		simpleFloraMat->Shader = shader;
-		simpleFloraMat->Set("s_Diffuse", simpleFlora);
-		simpleFloraMat->Set("s_Specular", noSpec);
-		simpleFloraMat->Set("u_Shininess", 8.0f);
-		simpleFloraMat->Set("u_TextureMix", 0.0f);*/
-
 
 		VertexArrayObject::sptr planeVAO = ObjLoader::LoadFromFile("models/plane.obj");
 
