@@ -39,6 +39,9 @@ int main() {
 	int selectedVao = 0; // select cube by default
 	std::vector<GameObject> controllables;
 
+	//Variables for toggles
+	bool isTexturesOn = true;
+
 	BackendHandler::InitAll();
 
 	// Let OpenGL know that we want debug output, and route it to our handler function
@@ -122,6 +125,14 @@ int main() {
 		
 		// We'll add some ImGui controls to control our shader
 		BackendHandler::imGuiCallbacks.push_back([&]() {
+			if (ImGui::CollapsingHeader("Exam Controls"))
+			{
+				//Toggles textures on/off
+				if (ImGui::Checkbox("Toggle Textures", &isTexturesOn))
+				{				
+				}
+			}
+
 			if (ImGui::CollapsingHeader("Effect controls"))
 			{
 				ImGui::SliderInt("Chosen Effect", &activeEffect, 0, effects.size() - 1);
@@ -155,22 +166,9 @@ int main() {
 					ImGui::Text("Active Effect: Color Correct Effect");
 
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
-					static char input[BUFSIZ];
-					ImGui::InputText("Lut File to Use", input, BUFSIZ);
-
-					if (ImGui::Button("SetLUT", ImVec2(200.0f, 40.0f)))
-					{
-						temp->SetLUT(LUT3D(std::string(input)));
-					}
 				}
 			}
-			if (ImGui::CollapsingHeader("Environment generation"))
-			{
-				if (ImGui::Button("Regenerate Environment", ImVec2(200.0f, 40.0f)))
-				{
-					EnvironmentGenerator::RegenerateEnvironment();
-				}
-			}
+			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
 			{
 				if (ImGui::DragFloat3("Light Direction/Position", glm::value_ptr(theSun._lightDirection), 0.01f, -10.0f, 10.0f)) 
@@ -255,9 +253,8 @@ int main() {
 		Texture2D::sptr heightMap = Texture2D::LoadFromFile("images/groundHeightMap.png");
 		Texture2D::sptr water = Texture2D::LoadFromFile("images/Water.png");
 		Texture2D::sptr noSpec = Texture2D::LoadFromFile("images/grassSpec.png");
-		Texture2D::sptr box = Texture2D::LoadFromFile("images/box.bmp");
-		Texture2D::sptr boxSpec = Texture2D::LoadFromFile("images/box-reflections.bmp");
-		Texture2D::sptr simpleFlora = Texture2D::LoadFromFile("images/SimpleFlora.png");
+		Texture2D::sptr waterNormal = Texture2D::LoadFromFile("images/water_normal2.png");
+
 		LUT3D testCube("cubes/BrightenedCorrection.cube");
 
 		// Load the cube map
@@ -310,6 +307,7 @@ int main() {
 		waterMat->Set("s_Diffuse", water);
 		waterMat->Set("s_Specular", noSpec);
 		waterMat->Set("u_waterTransparency", waterTransparency);
+		waterMat->Set("s_Normal", waterNormal);
 		waterMat->Set("u_deepestColor", deepColor);
 		waterMat->Set("u_midColor", midColor);
 		waterMat->Set("u_shoreColor", shoreColor);
@@ -318,7 +316,11 @@ int main() {
 		waterMat->Set("u_Shininess", 8.0f);
 		waterMat->Set("u_TextureMix", 0.0f);
 
-		ShaderMaterial::sptr boxMat = ShaderMaterial::Create();
+		ShaderMaterial::sptr noTex = ShaderMaterial::Create();
+		noTex->Shader = shader;
+		noTex->Set("s_Diffuse", texture2);
+
+		/*ShaderMaterial::sptr boxMat = ShaderMaterial::Create();
 		boxMat->Shader = shader;
 		boxMat->Set("s_Diffuse", box);
 		boxMat->Set("s_Specular", boxSpec);
@@ -330,7 +332,7 @@ int main() {
 		simpleFloraMat->Set("s_Diffuse", simpleFlora);
 		simpleFloraMat->Set("s_Specular", noSpec);
 		simpleFloraMat->Set("u_Shininess", 8.0f);
-		simpleFloraMat->Set("u_TextureMix", 0.0f);
+		simpleFloraMat->Set("u_TextureMix", 0.0f);*/
 
 
 		VertexArrayObject::sptr planeVAO = ObjLoader::LoadFromFile("models/plane.obj");
@@ -404,7 +406,7 @@ int main() {
 		}
 		effects.push_back(greyscaleEffect);
 		
-		GameObject colorCorrectEffectObject = scene->CreateEntity("Greyscale Effect");
+		GameObject colorCorrectEffectObject = scene->CreateEntity("Color Correct Effect");
 		{
 			colorCorrectEffect = &colorCorrectEffectObject.emplace<ColorCorrectEffect>();
 			colorCorrectEffect->Init(width, height);
@@ -503,6 +505,20 @@ int main() {
 				for (const KeyPressWatcher& watcher : keyToggles) {
 					watcher.Poll(BackendHandler::window);
 				}
+			}
+
+			//Toggles the textures on/off
+			if (!isTexturesOn)
+			{
+				stoneMat->Set("s_Diffuse", texture2);
+				grassMat->Set("s_Diffuse", texture2);
+				waterMat->Set("s_Diffuse", texture2);
+			}
+			else
+			{
+				stoneMat->Set("s_Diffuse", stone);
+				grassMat->Set("s_Diffuse", grass);
+				waterMat->Set("s_Diffuse", water);
 			}
 
 			// Iterate over all the behaviour binding components

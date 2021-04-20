@@ -35,6 +35,7 @@ layout (std140, binding = 0) uniform u_Lights
 uniform sampler2D s_Diffuse;
 uniform sampler2D s_Diffuse2;
 uniform sampler2D s_Specular;
+uniform sampler2D s_Normal;
 
 uniform float u_TextureMix;
 uniform vec3  u_CamPos;
@@ -87,6 +88,8 @@ void main() {
 	{
 		deepColorMod = 1.0;
 	}
+
+	vec3 inNormal = (normalize(texture(s_Normal, inUV).rgb) * 2.0) - 1.0;
 
 	// Diffuse
 	vec3 N = normalize(inNormal);
