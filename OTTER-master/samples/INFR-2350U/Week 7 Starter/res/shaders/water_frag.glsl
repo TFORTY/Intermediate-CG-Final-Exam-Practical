@@ -163,8 +163,6 @@ void main() {
 			break;
 	}
 
-
-
 	//frag_color = vec4(depthDiff, depthDiff, depthDiff, 1.0);
 	frag_color = vec4(result, u_waterTransparency
 		* ((u_shoreColor.a * shoreColorMod)
