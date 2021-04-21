@@ -41,7 +41,6 @@ int main() {
 
 	//Variables for toggles
 	bool isTexturesOn = true;
-	int lightToggleMode = 0;
 
 	BackendHandler::InitAll();
 
@@ -129,44 +128,76 @@ int main() {
 		SepiaEffect* sepiaEffect;
 		GreyscaleEffect* greyscaleEffect;
 		ColorCorrectEffect* colorCorrectEffect;  
+
+		bool isNoLighting = true;
+		bool isAmbient = false;
+		bool isSpecular = false;
+		bool isAmbSpec = false;
+		//bool isAmbSpecDOF = false;
 		  
 		// We'll add some ImGui controls to control our shader 
 		BackendHandler::imGuiCallbacks.push_back([&]() {
 			if (ImGui::CollapsingHeader("Exam Controls"))
 			{ 
-				//Lighting toggles (MAKE CHECKBOXES??)
-				if (ImGui::Button("No Lighting")) 
-				{ 
-					lightToggleMode = 0;
+				if (ImGui::Checkbox("No Lighting", &isNoLighting))
+				{
+					isNoLighting = true;
+					isAmbient = false;
+					isSpecular = false;
+					isAmbSpec = false;			 
+				}
+				if (ImGui::Checkbox("Ambient Lighting", &isAmbient))
+				{
+					isAmbient = true;
+					isNoLighting = false;
+					isSpecular = false;
+					isAmbSpec = false;
+				}
+				if (ImGui::Checkbox("Specular Lighting", &isSpecular))
+				{
+					isSpecular = true;
+					isNoLighting = false;
+					isAmbient = false;
+					isAmbSpec = false;
+				}
+				if (ImGui::Checkbox("Ambient + Specular Lighting", &isAmbSpec)) // + Diffuse
+				{
+					isAmbSpec = true;
+					isNoLighting = false;
+					isAmbient = false;
+					isSpecular = false;
+				}
+
+
+				if (isNoLighting)
+				{
 					shader->SetUniform("u_Condition", 0);
 					groundShader->SetUniform("u_Condition", 0);
 					waterShader->SetUniform("u_Condition", 0);
 				}
-				if (ImGui::Button("Ambient Lighting"))
+				else if (isAmbient)
 				{
-					lightToggleMode = 1;
 					shader->SetUniform("u_Condition", 1);
 					groundShader->SetUniform("u_Condition", 1);
 					waterShader->SetUniform("u_Condition", 1);
 				}
-				if (ImGui::Button("Specular Lighting"))
+				else if (isSpecular)
 				{
-					lightToggleMode = 2;
 					shader->SetUniform("u_Condition", 2);
 					groundShader->SetUniform("u_Condition", 2);
 					waterShader->SetUniform("u_Condition", 2);
 				}
-				if (ImGui::Button("Ambient + Specular Lighting")) // + Diffuse
+				else if (isAmbSpec)
 				{
-					lightToggleMode = 3;
 					shader->SetUniform("u_Condition", 3);
 					groundShader->SetUniform("u_Condition", 3);
 					waterShader->SetUniform("u_Condition", 3);
 				}
-				if (ImGui::Button("Ambient + Specular + DOF"))
-				{
-					//Include additional controls to adjust DOF
-				}
+
+				//if (ImGui::Checkbox("Ambient + Specular + DOF", &isAmbSpecDOF))
+				//{
+				//	//Include additional controls to adjust DOF
+				//}
 
 				//Toggles textures on/off
 				if (ImGui::Checkbox("Toggle Textures", &isTexturesOn))
