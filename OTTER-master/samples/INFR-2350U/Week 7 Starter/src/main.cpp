@@ -86,7 +86,7 @@ int main() {
 		waterShader->LoadShaderPartFromFile("shaders/water_frag.glsl", GL_FRAGMENT_SHADER);
 		waterShader->Link();
 
-		float displacementIntensity = 11.0f;
+		float displacementIntensity = 25.0f;
 		ShaderMaterial::sptr grassMat = ShaderMaterial::Create();
 		grassMat->Shader = groundShader;
 
@@ -288,13 +288,13 @@ int main() {
 		#pragma region Texture
 
 		// Load some textures from files
-		Texture2D::sptr stone = Texture2D::LoadFromFile("images/Stone_001_Diffuse.png");
-		Texture2D::sptr stoneSpec = Texture2D::LoadFromFile("images/Stone_001_Specular.png");
 		Texture2D::sptr grass = Texture2D::LoadFromFile("images/dirt.jpg");
 		Texture2D::sptr heightMap = Texture2D::LoadFromFile("images/groundHeightMap.png");
 		Texture2D::sptr water = Texture2D::LoadFromFile("images/Water.png");
 		Texture2D::sptr noSpec = Texture2D::LoadFromFile("images/grassSpec.png");
 		Texture2D::sptr waterNormal = Texture2D::LoadFromFile("images/water_normal2.png");
+
+		Texture2D::sptr chickenTex = Texture2D::LoadFromFile("images/DrumstickTexture.png");
 
 		LUT3D testCube("cubes/BrightenedCorrection.cube");
 
@@ -331,14 +331,6 @@ int main() {
 			scene->Registry().group<RendererComponent>(entt::get_t<Transform>());
 
 		// Create a material and set some properties for it
-		//MONKEY
-		ShaderMaterial::sptr stoneMat = ShaderMaterial::Create();  
-		stoneMat->Shader = shader; 
-		stoneMat->Set("s_Diffuse", stone); 
-		stoneMat->Set("s_Specular", stoneSpec);
-		stoneMat->Set("u_Shininess", 2.0f);
-		stoneMat->Set("u_TextureMix", 0.0f); 
-
 		//GROUND
 		grassMat->Set("s_Diffuse", grass);
 		grassMat->Set("s_Specular", noSpec);
@@ -360,6 +352,14 @@ int main() {
 		waterMat->Set("u_Shininess", 8.0f);
 		waterMat->Set("u_TextureMix", 0.0f);
 
+		//Drumstick
+		ShaderMaterial::sptr chickenMat = ShaderMaterial::Create();
+		chickenMat->Shader = shader;
+		chickenMat->Set("s_Diffuse", chickenTex);
+		chickenMat->Set("s_Specular", noSpec);
+		chickenMat->Set("u_Shininess", 8.0f);
+		chickenMat->Set("u_TextureMix", 0.0f);
+
 		//No Texture Material
 		ShaderMaterial::sptr noTex = ShaderMaterial::Create();
 		noTex->Shader = shader;
@@ -377,13 +377,63 @@ int main() {
 			obj2.emplace<RendererComponent>().SetMesh(planeVAO).SetMaterial(waterMat).SetCastShadow(false).SetIsTransparent(true);
 		}
 
-		GameObject obj3 = scene->CreateEntity("monkey_quads");
+		GameObject obj3 = scene->CreateEntity("Drumstick Think");
 		{
-			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/monkey_quads.obj");
-			obj3.emplace<RendererComponent>().SetMesh(vao).SetMaterial(stoneMat);
-			obj3.get<Transform>().SetLocalPosition(0.0f, 0.0f, 2.0f);
-			obj3.get<Transform>().SetLocalRotation(0.0f, 0.0f, -90.0f);
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenThink.obj");
+			obj3.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj3.get<Transform>().SetLocalPosition(1.0f, -2.0f, 2.3f);
+			obj3.get<Transform>().SetLocalRotation(90.0f, 0.0f, 180.0f);
+			obj3.get<Transform>().SetLocalScale(glm::vec3(0.55f));
 			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj3);
+		}
+
+		GameObject obj4 = scene->CreateEntity("Drumstick Stand");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenIdle.obj");
+			obj4.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj4.get<Transform>().SetLocalPosition(-3.f, -15.f, 8.6f);
+			obj4.get<Transform>().SetLocalRotation(90.0f, 0.0f, 180.0f);
+			obj4.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj4);
+		}
+
+		GameObject obj5 = scene->CreateEntity("Drumstick Swimming");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenHips.obj");
+			obj5.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj5.get<Transform>().SetLocalPosition(7.f, -6.f, 0.0f);
+			obj5.get<Transform>().SetLocalRotation(0.0f, 0.0f, 180.0f);
+			obj5.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj5);
+		}
+
+		GameObject obj6 = scene->CreateEntity("Drumstick Drowning");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj");
+			obj6.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj6.get<Transform>().SetLocalPosition(7.f, 0.f, -5.f);
+			obj6.get<Transform>().SetLocalRotation(0.0f, 0.0f, 180.0f);
+			obj6.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+		}
+
+		GameObject obj7 = scene->CreateEntity("Drumstick Drowning 2");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj");
+			obj7.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj7.get<Transform>().SetLocalPosition(-8.f, 11.f, -1.5f);
+			obj7.get<Transform>().SetLocalRotation(0.0f, 90.0f, 0.0f);
+			obj7.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj7);
+		}
+
+		GameObject obj8 = scene->CreateEntity("Drumstick Drowning 3");
+		{
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj");
+			obj8.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
+			obj8.get<Transform>().SetLocalPosition(6.f, 3.f, 0.5f);
+			obj8.get<Transform>().SetLocalRotation(0.0f, 180.0f, 0.0f);
+			obj8.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj8);
 		}
 
 		// Create an object to be our camera
@@ -508,6 +558,8 @@ int main() {
 		Timing& time = Timing::Instance();
 		time.LastFrame = glfwGetTime();
 
+		int spinFactor = 0;
+
 		///// Game loop /////
 		while (!glfwWindowShouldClose(BackendHandler::window)) {
 			glfwPollEvents();
@@ -540,15 +592,15 @@ int main() {
 			//Toggles the textures on/off
 			if (!isTexturesOn)
 			{
-				stoneMat->Set("s_Diffuse", texture2);
 				grassMat->Set("s_Diffuse", texture2);
 				waterMat->Set("s_Diffuse", texture2);
+				chickenMat->Set("s_Diffuse", texture2);
 			}
 			else
 			{
-				stoneMat->Set("s_Diffuse", stone);
 				grassMat->Set("s_Diffuse", grass);
 				waterMat->Set("s_Diffuse", water);
+				chickenMat->Set("s_Diffuse", chickenTex);
 			}
 
 			// Iterate over all the behaviour binding components
@@ -587,6 +639,10 @@ int main() {
 			glm::mat4 view = glm::inverse(camTransform.LocalTransform());
 			glm::mat4 projection = cameraObject.get<Camera>().GetProjection();
 			glm::mat4 viewProjection = projection * view;
+
+			//Chicken Spinning
+			obj6.get<Transform>().SetLocalRotation(glm::vec3(0.0f, 0.0f, spinFactor % 360));
+			spinFactor++;
 
 			//Set up light space matrix
 			glm::mat4 lightProjectionMatrix = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -30.0f, 30.0f);
