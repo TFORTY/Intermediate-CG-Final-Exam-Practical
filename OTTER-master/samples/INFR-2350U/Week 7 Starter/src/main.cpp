@@ -50,7 +50,7 @@ int main() {
 
 	// Enable texturing
 	glEnable(GL_TEXTURE_2D); 
-
+	 
 	// Push another scope so most memory should be freed *before* we exit the app
 	{
 		#pragma region Shader and ImGui
