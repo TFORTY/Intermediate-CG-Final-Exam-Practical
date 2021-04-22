@@ -22,7 +22,7 @@ public:
 	void SetDownscale(float downscale);
 
 private:
-	float _depth = 0.5;
+	float _depth = 0.7;
 	float _downscale = 2.f;
 	unsigned _passes = 10;
 	glm::vec2 _pixelSize;

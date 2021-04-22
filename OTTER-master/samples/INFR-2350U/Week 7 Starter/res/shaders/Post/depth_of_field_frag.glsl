@@ -8,7 +8,7 @@ out vec4 frag_color;
 
 layout(binding = 0) uniform sampler2D s_Tex;
 
-uniform float u_Depth = 0.7;
+uniform float u_Depth;
 
 void main()
 {
