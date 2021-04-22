@@ -129,6 +129,8 @@ int main() {
 		GreyscaleEffect* greyscaleEffect;
 		ColorCorrectEffect* colorCorrectEffect;  
 
+		DepthOfFieldEffect* depthOfFieldEffect;
+
 		bool isNoLighting = true;
 		bool isAmbient = false;
 		bool isSpecular = false;
@@ -214,12 +216,12 @@ int main() {
 					ImGui::Text("Active Effect: Sepia Effect");
 
 					SepiaEffect* temp = (SepiaEffect*)effects[activeEffect];
-					float intensity = temp->GetIntensity();
+					float intensity = temp->GetIntensity(); 
 
 					if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f))
 					{
 						temp->SetIntensity(intensity);
-					}
+					} 
 				}
 				if (activeEffect == 1)
 				{
@@ -232,12 +234,30 @@ int main() {
 					{
 						temp->SetIntensity(intensity);
 					}
-				}
-				if (activeEffect == 2)
-				{
+				} 
+				if (activeEffect == 2) 
+				{ 
 					ImGui::Text("Active Effect: Color Correct Effect");
-
+					   
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
+				}
+				if (activeEffect == 3) 
+				{  
+					ImGui::Text("Active Effect: Depth of Field Effect");
+
+					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];
+					float depth = temp->GetDepth();
+					float passes = temp->GetPasses();
+
+					if (ImGui::SliderFloat("Depth Limit", &depth, 0.0f, 1.0f))
+					{
+						temp->SetDepth(depth);
+					}
+					
+					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 30.0f))
+					{
+						temp->SetPasses(passes);
+					}
 				}
 			}
 			
@@ -499,7 +519,7 @@ int main() {
 		GameObject framebufferObject = scene->CreateEntity("Basic Effect");
 		{
 			basicEffect = &framebufferObject.emplace<PostEffect>();
-			basicEffect->Init(width, height);
+			basicEffect->Init(width, height); 
 		}
 
 		GameObject sepiaEffectObject = scene->CreateEntity("Sepia Effect");
@@ -523,6 +543,13 @@ int main() {
 			colorCorrectEffect->Init(width, height);
 		}
 		effects.push_back(colorCorrectEffect);
+
+		GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
+		{
+			depthOfFieldEffect = &depthOfFieldEffectObject.emplace<DepthOfFieldEffect>();
+			depthOfFieldEffect->Init(width, height);
+		}
+		effects.push_back(depthOfFieldEffect);
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////
