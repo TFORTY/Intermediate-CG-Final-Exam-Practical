@@ -38,6 +38,9 @@ uniform sampler2D s_Specular;
 uniform float u_TextureMix;
 uniform vec3  u_CamPos;
 
+uniform float u_NearPlane;
+uniform float u_FarPlane;
+
 //For lighting toggles
 uniform int u_Condition;
 
@@ -73,11 +76,11 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 	return shadow; 
 }
 
-float linearize_depth(float d, float zNear, float zFar)
-{
-	float z_n = 2.0 * d - 1.0;
-	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
-}
+//float linearize_depth(float d, float zNear, float zFar)
+//{
+//	float z_n = 2.0 * d - 1.0;
+//	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+//}
 
 // https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
 void main() {
@@ -104,7 +107,8 @@ void main() {
 
 	float shadow = ShadowCalculation(inFragPosLightSpace);
 
-	float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
+	//float actualDepth = linearize_depth(gl_FragCoord.z, u_NearPlane, u_FarPlane);
+	//float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
 
 	vec3 result;
 
@@ -136,7 +140,7 @@ void main() {
 			break;
 	}
 
-	//frag_color = vec4(result, textureColor.a);
+	frag_color = vec4(result, textureColor.a);
 
-	frag_color = vec4(actualDepth, actualDepth, actualDepth, 1.0);
+	//frag_color = vec4(actualDepth, actualDepth, actualDepth, 1.0);	
 }

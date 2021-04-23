@@ -100,7 +100,7 @@ int main() {
 		ShaderMaterial::sptr waterMat = ShaderMaterial::Create();
 		waterMat->Shader = waterShader;
 		waterMat->RenderLayer = 10;
-		
+		 
 		//Creates our directional Light
 		DirectionalLight theSun;
 		UniformBuffer directionalLightBuffer;
@@ -117,6 +117,11 @@ int main() {
 		shader->SetUniform("u_Condition", condition);
 		groundShader->SetUniform("u_Condition", condition);
 		waterShader->SetUniform("u_Condition", condition);
+
+		shader->SetUniform("u_NearPlane", 0.01f);
+		shader->SetUniform("u_FarPlane", 1000.0f);
+		groundShader->SetUniform("u_NearPlane", 0.01f);
+		groundShader->SetUniform("u_FarPlane", 1000.0f);
 
 		//Basic effect for drawing to
 		PostEffect* basicEffect; 
@@ -233,32 +238,56 @@ int main() {
 					if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f))
 					{
 						temp->SetIntensity(intensity);
-					} 
+					}  
 				}  
 				if (activeEffect == 2) 
 				{ 
-					ImGui::Text("Active Effect: Color Correct Effect");
+					ImGui::Text("Active Effect: Color Correct Effect");  
 					   
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
 				}
-				/*if (activeEffect == 3) 
+				if (activeEffect == 3) 
 				{  
 					ImGui::Text("Active Effect: Depth of Field Effect");
 
-					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];
-					float depth = temp->GetDepth();
-					float passes = temp->GetPasses();
+					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];				
+					float passes = temp->GetPasses();		
+					float nearPlane = temp->GetNearPlane(); 
+					float farPlane = temp->GetFarPlane(); 
+					float focalDistance = temp->GetFocalDistance();
+					float focalLength = temp->GetFocalLength();
+					float aperature = temp->GetAperature();
+					float maxCoC = temp->GetMaxCoC();
 
-					if (ImGui::SliderFloat("Depth Limit", &depth, 0.0f, 1.0f))
-					{
-						temp->SetDepth(depth);
-					}
-					
-					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 30.0f))
+					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
 					{
 						temp->SetPasses(passes);
 					}
-				}*/
+					if (ImGui::SliderFloat("Near Plane", &nearPlane, 0.01f, 1000.0f))
+					{
+						temp->SetNearPlane(nearPlane);
+					}
+					if (ImGui::SliderFloat("Far Plane", &farPlane, 1000.0f, 0.01f))
+					{
+						temp->SetFarPlane(farPlane);
+					}
+					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.f))
+					{
+						temp->SetFocalDistance(focalDistance);
+					}
+					if (ImGui::SliderFloat("Focal Length", &focalLength, 0.f, 100.f))
+					{
+						temp->SetFocalLength(focalLength);
+					}
+					if (ImGui::SliderFloat("Aperature", &aperature, 0.24f, 3.f))
+					{
+						temp->SetAperature(aperature);
+					}
+					if (ImGui::SliderFloat("Max CoC", &maxCoC, 0.f, 1.f))
+					{
+						temp->SetMaxCoC(maxCoC);
+					}
+				}
 			}
 			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
@@ -471,28 +500,28 @@ int main() {
 		{
 			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj");
 			obj7.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
-			obj7.get<Transform>().SetLocalPosition(-8.f, 11.f, -1.5f);
+			obj7.get<Transform>().SetLocalPosition(-8.f, 11.f, -1.5f); 
 			obj7.get<Transform>().SetLocalRotation(0.0f, 90.0f, 0.0f);
 			obj7.get<Transform>().SetLocalScale(glm::vec3(0.55f));
 			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj7);
-		}
+		} 
 
 		GameObject obj8 = scene->CreateEntity("Drumstick Drowning 3");
 		{
-			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj");
+			VertexArrayObject::sptr vao = ObjLoader::LoadFromFile("models/ChickenBack.obj"); 
 			obj8.emplace<RendererComponent>().SetMesh(vao).SetMaterial(chickenMat);
 			obj8.get<Transform>().SetLocalPosition(6.f, 3.f, 0.5f);
 			obj8.get<Transform>().SetLocalRotation(0.0f, 180.0f, 0.0f);
-			obj8.get<Transform>().SetLocalScale(glm::vec3(0.55f));
+			obj8.get<Transform>().SetLocalScale(glm::vec3(0.55f)); 
 			BehaviourBinding::BindDisabled<SimpleMoveBehaviour>(obj8);
-		}
+		} 
+		 
+		// Create an object to be our camera   
+		GameObject cameraObject = scene->CreateEntity("Camera"); 
+		
+			cameraObject.get<Transform>().SetLocalPosition(0, 3, 3).LookAt(glm::vec3(0, 0, 0)); 
 
-		// Create an object to be our camera
-		GameObject cameraObject = scene->CreateEntity("Camera");
-		{
-			cameraObject.get<Transform>().SetLocalPosition(0, 3, 3).LookAt(glm::vec3(0, 0, 0));
-
-			// We'll make our camera a component of the camera object
+			// We'll make our camera a component of the camera object 
 			Camera& camera = cameraObject.emplace<Camera>();// Camera::Create();
 			camera.SetPosition(glm::vec3(0, 3, 3));
 			camera.SetUp(glm::vec3(0, 0, 1));
@@ -500,7 +529,7 @@ int main() {
 			camera.SetFovDegrees(90.0f); // Set an initial FOV
 			camera.SetOrthoHeight(3.0f);
 			BehaviourBinding::Bind<CameraControlBehaviour>(cameraObject);
-		}
+		
 
 		int width, height;
 		glfwGetWindowSize(BackendHandler::window, &width, &height);
@@ -544,12 +573,12 @@ int main() {
 		}
 		effects.push_back(colorCorrectEffect);
 
-		/*GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
+		GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
 		{
 			depthOfFieldEffect = &depthOfFieldEffectObject.emplace<DepthOfFieldEffect>();
 			depthOfFieldEffect->Init(width, height);
 		}
-		effects.push_back(depthOfFieldEffect);*/
+		effects.push_back(depthOfFieldEffect);
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -742,7 +771,6 @@ int main() {
 
 			shadowBuffer->Unbind();
 
-
 			glfwGetWindowSize(BackendHandler::window, &width, &height);
 
 			glViewport(0, 0, width, height);
@@ -750,7 +778,6 @@ int main() {
 
 			waterMat->Set("u_WindowWidth", (float)width);
 			waterMat->Set("u_WindowHeight", (float)height);
-
 
 			// Iterate over the render group components and draw them
 			renderGroup.each( [&](entt::entity e, RendererComponent& renderer, Transform& transform) {
