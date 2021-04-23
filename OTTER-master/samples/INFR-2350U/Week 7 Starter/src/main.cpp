@@ -140,7 +140,7 @@ int main() {
 		bool isAmbient = false;
 		bool isSpecular = false;
 		bool isAmbSpec = false;
-		//bool isAmbSpecDOF = false;
+		bool isAmbSpecDOF = false;
 		  
 		// We'll add some ImGui controls to control our shader 
 		BackendHandler::imGuiCallbacks.push_back([&]() {
@@ -151,7 +151,8 @@ int main() {
 					isNoLighting = true;
 					isAmbient = false;
 					isSpecular = false;
-					isAmbSpec = false;			 
+					isAmbSpec = false;		
+					isAmbSpecDOF = false;
 				}
 				if (ImGui::Checkbox("Ambient Lighting", &isAmbient))
 				{
@@ -159,6 +160,7 @@ int main() {
 					isNoLighting = false;
 					isSpecular = false;
 					isAmbSpec = false;
+					isAmbSpecDOF = false;
 				}
 				if (ImGui::Checkbox("Specular Lighting", &isSpecular))
 				{
@@ -166,6 +168,7 @@ int main() {
 					isNoLighting = false;
 					isAmbient = false;
 					isAmbSpec = false;
+					isAmbSpecDOF = false;
 				}
 				if (ImGui::Checkbox("Ambient + Specular Lighting", &isAmbSpec)) // + Diffuse
 				{
@@ -173,8 +176,16 @@ int main() {
 					isNoLighting = false;
 					isAmbient = false;
 					isSpecular = false;
+					isAmbSpecDOF = false;
 				}
-
+				if (ImGui::Checkbox("Ambient + Specular Lighting + DOF", &isAmbSpecDOF)) // + Diffuse
+				{
+					isAmbSpecDOF = true;
+					isAmbSpec = false;
+					isNoLighting = false;
+					isAmbient = false;
+					isSpecular = false;
+				}
 
 				if (isNoLighting)
 				{
@@ -186,13 +197,13 @@ int main() {
 				{
 					shader->SetUniform("u_Condition", 1);
 					groundShader->SetUniform("u_Condition", 1);
-					waterShader->SetUniform("u_Condition", 1);
+					waterShader->SetUniform("u_Condition", 1); 
 				}
 				else if (isSpecular)
 				{
 					shader->SetUniform("u_Condition", 2);
 					groundShader->SetUniform("u_Condition", 2);
-					waterShader->SetUniform("u_Condition", 2);
+					waterShader->SetUniform("u_Condition", 2); 
 				}
 				else if (isAmbSpec)
 				{
@@ -200,11 +211,12 @@ int main() {
 					groundShader->SetUniform("u_Condition", 3);
 					waterShader->SetUniform("u_Condition", 3);
 				}
-
-				//if (ImGui::Checkbox("Ambient + Specular + DOF", &isAmbSpecDOF))
-				//{
-				//	//Include additional controls to adjust DOF
-				//}
+				else if (isAmbSpecDOF)
+				{
+					shader->SetUniform("u_Condition", 4);
+					groundShader->SetUniform("u_Condition", 4);
+					waterShader->SetUniform("u_Condition", 3);
+				}
 
 				//Toggles textures on/off
 				if (ImGui::Checkbox("Toggle Textures", &isTexturesOn))
@@ -238,27 +250,27 @@ int main() {
 					if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f))
 					{
 						temp->SetIntensity(intensity);
-					}  
-				}  
+					}   
+				}   
 				if (activeEffect == 2) 
 				{ 
 					ImGui::Text("Active Effect: Color Correct Effect");  
 					   
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
 				}
-				if (activeEffect == 3) 
+			/*	if (activeEffect == 3) 
 				{  
 					ImGui::Text("Active Effect: Depth of Field Effect");
 
 					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];				
 					float passes = temp->GetPasses();		
 					float nearPlane = temp->GetNearPlane(); 
-					float farPlane = temp->GetFarPlane(); 
-					float focalDistance = temp->GetFocalDistance();
+					float farPlane = temp->GetFarPlane();   
+					float focalDistance = temp->GetFocalDistance(); 
 					float focalLength = temp->GetFocalLength();
 					float aperature = temp->GetAperature();
 					float maxCoC = temp->GetMaxCoC();
-
+					
 					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
 					{
 						temp->SetPasses(passes);
@@ -268,7 +280,7 @@ int main() {
 						temp->SetNearPlane(nearPlane);
 					}
 					if (ImGui::SliderFloat("Far Plane", &farPlane, 1000.0f, 0.01f))
-					{
+					{ 
 						temp->SetFarPlane(farPlane);
 					}
 					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.f))
@@ -283,11 +295,11 @@ int main() {
 					{
 						temp->SetAperature(aperature);
 					}
-					if (ImGui::SliderFloat("Max CoC", &maxCoC, 0.f, 1.f))
+					if (ImGui::SliderFloat("Max CoC", &maxCoC, 1.f, 0.f))
 					{
 						temp->SetMaxCoC(maxCoC);
 					}
-				}
+				}*/
 			}
 			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
@@ -573,12 +585,12 @@ int main() {
 		}
 		effects.push_back(colorCorrectEffect);
 
-		GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
+	/*	GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
 		{
 			depthOfFieldEffect = &depthOfFieldEffectObject.emplace<DepthOfFieldEffect>();
 			depthOfFieldEffect->Init(width, height);
 		}
-		effects.push_back(depthOfFieldEffect);
+		effects.push_back(depthOfFieldEffect);*/
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////

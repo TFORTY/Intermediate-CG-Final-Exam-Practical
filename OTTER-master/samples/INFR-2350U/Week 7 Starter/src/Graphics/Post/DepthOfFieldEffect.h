@@ -32,7 +32,7 @@ public:
 	void SetMaxCoC(float maxCoC) { _maxCoC = maxCoC; }
 
 private:
-	float _downscale = 16.f;
+	float _downscale = 2.f;
 	unsigned _passes = 10.f;
 	float _nearPlane = 0.01f;
 	float _farPlane = 1000.f;
@@ -41,4 +41,5 @@ private:
 	float _aperature = 0.6062f;
 	float _maxCoC = 1.0f;
 	glm::vec2 _pixelSize;
+
 };

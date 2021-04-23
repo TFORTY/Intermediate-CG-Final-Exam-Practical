@@ -10,7 +10,7 @@ uniform float u_FocalLength;
 uniform float u_Aperature;
 uniform float u_MAXCoC;
 
-float depthEye;
+in float depthEye;
 
 out vec4 frag_color;
 
@@ -44,8 +44,17 @@ void main()
 	vec4 colorB = texture(s_DepthOfField, inUV);
 
 	float actualDepth = linearize_depth(gl_FragCoord.z, u_NearPlane, u_FarPlane);
+	float calcCoC = CalculateCircleOfConfusion(actualDepth);
 
-	frag_color.a = CalculateCircleOfConfusion(actualDepth);
+	float diffCoC = u_MAXCoC - calcCoC;
+
+	frag_color = (colorA * diffCoC) + (colorB * calcCoC);
+
+	//frag_color.a = CalculateCircleOfConfusion(actualDepth);
+
+	//colorB.a = calcCoC;
+
+	//frag_color = colorA * colorB
 
 	//frag_color = 1.0 - (1.0 - colorA) * (1.0 - colorB);
 }

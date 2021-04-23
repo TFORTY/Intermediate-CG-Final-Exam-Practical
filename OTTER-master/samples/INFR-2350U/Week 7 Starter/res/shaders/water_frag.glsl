@@ -115,14 +115,6 @@ void main() {
 	vec4 textureColor2 = texture(s_Diffuse2, inUV);
 	vec4 textureColor = mix(textureColor1, textureColor2, u_TextureMix);
 
-//	vec3 result = (
-//		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
-//		(diffuse + specular) // light factors from our single light
-//		) * inColor * mix(textureColor, u_shoreColor, shoreColorMod).rgb
-//		* (shoreColorMod
-//		+ (u_midColor.rgb * midColorMod)
-//		+ (u_deepestColor.rgb * deepColorMod)); // Object color
-
 	vec3 result;
 
 	switch(u_Condition)
@@ -163,7 +155,6 @@ void main() {
 			break;
 	}
 
-	//frag_color = vec4(depthDiff, depthDiff, depthDiff, 1.0);
 	frag_color = vec4(result, u_waterTransparency
 		* ((u_shoreColor.a * shoreColorMod)
 		+ (u_midColor.a * midColorMod)
