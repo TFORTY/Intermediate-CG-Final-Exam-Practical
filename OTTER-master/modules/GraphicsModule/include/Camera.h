@@ -100,6 +100,12 @@ public:
 	const glm::mat4& GetViewProjNoTranslation() const;
 	void SetView(glm::mat4 mat) { _view = mat; _isDirty = true; }
 
+	float GetNearPlane() const { return _nearPlane; }
+	float GetFarPlane() const { return _farPlane; }
+
+	void SetNearPlane(float nearPlane) { _nearPlane = nearPlane; }
+	void SetFarPlane(float farPlane) { _farPlane = farPlane; }
+
 protected:
 	bool _isOrtho;
 	float _orthoHeight;

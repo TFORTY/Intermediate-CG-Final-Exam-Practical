@@ -57,9 +57,6 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 	//Get the current depth according to our camera
 	float currentDepth = projectionCoordinates.z;
 
-	//Check whether there's a shadow
-	//float shadow = currentDepth - sun._shadowBias > closestDepth ? 1.0 : 0.0;
-
 	//PCF Calculation
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(s_ShadowMap, 0);
@@ -74,6 +71,12 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 	shadow /= 9.0;
 
 	return shadow; 
+}
+
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0 * d - 1.0;
+	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
 }
 
 // https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
@@ -101,10 +104,7 @@ void main() {
 
 	float shadow = ShadowCalculation(inFragPosLightSpace);
 
-//	vec3 result = (
-//		(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
-//		(1.0 - shadow) * (diffuse + specular) // light factors from our single light
-//		) * inColor * textureColor.rgb; // Object color
+	float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
 
 	vec3 result;
 
@@ -117,9 +117,9 @@ void main() {
 		//Ambient
 		case 1:
 			result = (
-			(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
+			(sun._ambientPow * sun._ambientCol.xyz) + 
 			(1.0 - shadow)) *
-			inColor * textureColor.rgb; // Object color
+			inColor * textureColor.rgb; 
 			break;
 		//Specular
 		case 2:
@@ -130,11 +130,13 @@ void main() {
 		//Amb + Spec + Diffuse
 		case 3:
 			result = (
-			(sun._ambientPow * sun._ambientCol.xyz) + // global ambient light
-			(1.0 - shadow) * (diffuse + specular) // light factors from our single light
-			) * inColor * textureColor.rgb; // Object color
+			(sun._ambientPow * sun._ambientCol.xyz) + 
+			(1.0 - shadow) * (diffuse + specular) 
+			) * inColor * textureColor.rgb; 
 			break;
 	}
 
-	frag_color = vec4(result, textureColor.a);
+	//frag_color = vec4(result, textureColor.a);
+
+	frag_color = vec4(actualDepth, actualDepth, actualDepth, 1.0);
 }

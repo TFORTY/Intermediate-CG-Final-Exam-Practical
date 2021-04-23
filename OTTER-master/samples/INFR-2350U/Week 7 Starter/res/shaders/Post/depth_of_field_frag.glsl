@@ -1,41 +1,34 @@
 #version 420
 
-//Referenced from https://www.programmersought.com/article/226451461/
-
 layout(location = 0) in vec2 inUV;
+
+uniform float u_NearPlane;
+uniform float u_FarPlane;
+
+uniform float u_FocalDistance;
+uniform float u_FocalLength;
+uniform float u_Aperature;
+uniform float u_MAXCoC;
 
 out vec4 frag_color;
 
-layout(binding = 0) uniform sampler2D s_Tex;
+layout(binding = 0) uniform sampler2D s_Scene;
+layout(binding = 1) uniform sampler2D s_DOF;
 
-uniform float u_Depth;
+float linearize_depth(float d, float zNear, float zFar)
+{
+	float z_n = 2.0 * d - 1.0;
+	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}
 
 void main()
 {
-	frag_color = texture2D(s_Tex, inUV);
+	float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
 
-	float blur = 0;
+	frag_color = vec4(actualDepth, actualDepth, actualDepth, 1.0);
 
-	float near_distance = 10.0;
-	float far_distance = 10.0;
-
-	float near_plane = -20.0;
-	float far_plane = -25.0;
-
-	if (u_Depth <= near_plane && u_Depth >= far_plane)
-	{
-		blur = 0;
-	}
-	else if (u_Depth > near_plane)
-	{
-		blur = clamp(u_Depth, near_plane, near_plane + near_distance);
-		blur = (blur - near_plane) / near_distance;
-	}
-	else if (u_Depth < far_plane)
-	{
-		blur = clamp(u_Depth, far_plane - far_distance, far_plane);
-		blur = (far_plane - blur) / far_distance;
-	}
-
-	frag_color.a = blur;
+//	vec4 colorA = texture(s_Scene, inUV);
+//	vec4 colorB = texture(s_DOF, inUV);
+//
+//	frag_color = 1.0 - (1.0 - colorA) * (1.0 - colorB);
 }

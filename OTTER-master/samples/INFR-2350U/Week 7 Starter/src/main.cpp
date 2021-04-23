@@ -81,14 +81,14 @@ int main() {
 		// Load our shaders
 		Shader::sptr waterShader = Shader::Create();
 		waterShader->LoadShaderPartFromFile("shaders/water_vert.glsl", GL_VERTEX_SHADER);
-		//Directional Light Shader
-		waterShader->LoadShaderPartFromFile("shaders/water_frag.glsl", GL_FRAGMENT_SHADER);
+		//Directional Light Shader 
+		waterShader->LoadShaderPartFromFile("shaders/water_frag.glsl", GL_FRAGMENT_SHADER); 
 		waterShader->Link();
 
 		float displacementIntensity = 25.0f;
 		ShaderMaterial::sptr grassMat = ShaderMaterial::Create();
 		grassMat->Shader = groundShader;
-
+		 
 		float waterTransparency = 0.8f;
 
 		glm::vec4 deepColor = glm::vec4(0.0, 0.05, 0.65, 1.0);
@@ -96,7 +96,7 @@ int main() {
 		glm::vec4 shoreColor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 		float shoreCutoff = 0.03;
 		float midCutoff = 0.3;
-
+		 
 		ShaderMaterial::sptr waterMat = ShaderMaterial::Create();
 		waterMat->Shader = waterShader;
 		waterMat->RenderLayer = 10;
@@ -233,15 +233,15 @@ int main() {
 					if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f))
 					{
 						temp->SetIntensity(intensity);
-					}
-				} 
+					} 
+				}  
 				if (activeEffect == 2) 
 				{ 
 					ImGui::Text("Active Effect: Color Correct Effect");
 					   
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
 				}
-				if (activeEffect == 3) 
+				/*if (activeEffect == 3) 
 				{  
 					ImGui::Text("Active Effect: Depth of Field Effect");
 
@@ -258,7 +258,7 @@ int main() {
 					{
 						temp->SetPasses(passes);
 					}
-				}
+				}*/
 			}
 			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
@@ -417,7 +417,7 @@ int main() {
 		noTex->Set("s_Diffuse", texture2);
 
 		VertexArrayObject::sptr planeVAO = ObjLoader::LoadFromFile("models/plane.obj");
-
+		  
 		GameObject obj1 = scene->CreateEntity("Ground"); 
 		{
 			obj1.emplace<RendererComponent>().SetMesh(planeVAO).SetMaterial(grassMat).SetCastShadow(false);
@@ -544,12 +544,12 @@ int main() {
 		}
 		effects.push_back(colorCorrectEffect);
 
-		GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
+		/*GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
 		{
 			depthOfFieldEffect = &depthOfFieldEffectObject.emplace<DepthOfFieldEffect>();
 			depthOfFieldEffect->Init(width, height);
 		}
-		effects.push_back(depthOfFieldEffect);
+		effects.push_back(depthOfFieldEffect);*/
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////
