@@ -12,5 +12,5 @@ void main()
 {
 	float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
 
-	frag_color = vec4(actualDepth, actualDepth, actualDepth, 1.0);
+	frag_color = vec4(actualDepth, actualDepth, actualDepth, actualDepth);
 }	

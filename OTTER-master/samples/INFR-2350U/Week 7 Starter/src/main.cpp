@@ -228,7 +228,7 @@ int main() {
 			{
 				ImGui::SliderInt("Chosen Effect", &activeEffect, 0, effects.size() - 1);
 
-				if (activeEffect == 0)
+				if (activeEffect == 0) 
 				{
 					ImGui::Text("Active Effect: Sepia Effect");
 
@@ -258,48 +258,60 @@ int main() {
 					   
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
 				}
-			/*	if (activeEffect == 3) 
-				{  
+				if (activeEffect == 3)
+				{
 					ImGui::Text("Active Effect: Depth of Field Effect");
 
-					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];				
-					float passes = temp->GetPasses();		
-					float nearPlane = temp->GetNearPlane(); 
-					float farPlane = temp->GetFarPlane();   
-					float focalDistance = temp->GetFocalDistance(); 
-					float focalLength = temp->GetFocalLength();
-					float aperature = temp->GetAperature();
-					float maxCoC = temp->GetMaxCoC();
-					
+					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];
+					float passes = temp->GetPasses();
+
 					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
 					{
 						temp->SetPasses(passes);
 					}
-					if (ImGui::SliderFloat("Near Plane", &nearPlane, 0.01f, 1000.0f))
-					{
-						temp->SetNearPlane(nearPlane);
-					}
-					if (ImGui::SliderFloat("Far Plane", &farPlane, 1000.0f, 0.01f))
-					{ 
-						temp->SetFarPlane(farPlane);
-					}
-					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.f))
-					{
-						temp->SetFocalDistance(focalDistance);
-					}
-					if (ImGui::SliderFloat("Focal Length", &focalLength, 0.f, 100.f))
-					{
-						temp->SetFocalLength(focalLength);
-					}
-					if (ImGui::SliderFloat("Aperature", &aperature, 0.24f, 3.f))
-					{
-						temp->SetAperature(aperature);
-					}
-					if (ImGui::SliderFloat("Max CoC", &maxCoC, 1.f, 0.f))
-					{
-						temp->SetMaxCoC(maxCoC);
-					}
-				}*/
+				}
+				//if (activeEffect == 3) 
+				//{  
+				//	ImGui::Text("Active Effect: Depth of Field Effect");
+
+				//	DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];				
+				//	float passes = temp->GetPasses();		
+				//	/*float nearPlane = temp->GetNearPlane(); 
+				//	float farPlane = temp->GetFarPlane();   
+				//	float focalDistance = temp->GetFocalDistance(); 
+				//	float focalLength = temp->GetFocalLength();
+				//	float aperature = temp->GetAperature();
+				//	float maxCoC = temp->GetMaxCoC();*/
+				//	
+				//	/*if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
+				//	{
+				//		temp->SetPasses(passes);
+				//	}*/
+				//	/*if (ImGui::SliderFloat("Near Plane", &nearPlane, 0.01f, 1000.0f))
+				//	{
+				//		temp->SetNearPlane(nearPlane);
+				//	}
+				//	if (ImGui::SliderFloat("Far Plane", &farPlane, 1000.0f, 0.01f))
+				//	{ 
+				//		temp->SetFarPlane(farPlane);
+				//	}
+				//	if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.f))
+				//	{
+				//		temp->SetFocalDistance(focalDistance);
+				//	}
+				//	if (ImGui::SliderFloat("Focal Length", &focalLength, 0.f, 100.f))
+				//	{
+				//		temp->SetFocalLength(focalLength);
+				//	}
+				//	if (ImGui::SliderFloat("Aperature", &aperature, 0.24f, 3.f))
+				//	{
+				//		temp->SetAperature(aperature);
+				//	}
+				//	if (ImGui::SliderFloat("Max CoC", &maxCoC, 1.f, 0.f))
+				//	{
+				//		temp->SetMaxCoC(maxCoC);
+				//	}*/
+				//}
 			}
 			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
@@ -530,8 +542,8 @@ int main() {
 		 
 		// Create an object to be our camera   
 		GameObject cameraObject = scene->CreateEntity("Camera"); 
-		
-			cameraObject.get<Transform>().SetLocalPosition(0, 3, 3).LookAt(glm::vec3(0, 0, 0)); 
+		{
+			cameraObject.get<Transform>().SetLocalPosition(0, 3, 3).LookAt(glm::vec3(0, 0, 0));
 
 			// We'll make our camera a component of the camera object 
 			Camera& camera = cameraObject.emplace<Camera>();// Camera::Create();
@@ -541,7 +553,7 @@ int main() {
 			camera.SetFovDegrees(90.0f); // Set an initial FOV
 			camera.SetOrthoHeight(3.0f);
 			BehaviourBinding::Bind<CameraControlBehaviour>(cameraObject);
-		
+		}
 
 		int width, height;
 		glfwGetWindowSize(BackendHandler::window, &width, &height);
@@ -580,17 +592,17 @@ int main() {
 		
 		GameObject colorCorrectEffectObject = scene->CreateEntity("Color Correct Effect");
 		{
-			colorCorrectEffect = &colorCorrectEffectObject.emplace<ColorCorrectEffect>();
+			colorCorrectEffect = &colorCorrectEffectObject.emplace<ColorCorrectEffect>(); 
 			colorCorrectEffect->Init(width, height);
 		}
 		effects.push_back(colorCorrectEffect);
 
-	/*	GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
+		GameObject depthOfFieldEffectObject = scene->CreateEntity("Depth of Field Effect");
 		{
 			depthOfFieldEffect = &depthOfFieldEffectObject.emplace<DepthOfFieldEffect>();
 			depthOfFieldEffect->Init(width, height);
 		}
-		effects.push_back(depthOfFieldEffect);*/
+		effects.push_back(depthOfFieldEffect);
 
 		#pragma endregion 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -786,6 +798,20 @@ int main() {
 			glfwGetWindowSize(BackendHandler::window, &width, &height);
 
 			glViewport(0, 0, width, height);
+
+			//depthOfFieldEffect->BindBuffer(0);
+
+			/*renderGroup.each([&](entt::entity e, RendererComponent& renderer, Transform& transform) {
+				if (activeEffect == 3)
+				{
+					depthOfFieldEffect->GetShaders()[1]->Bind();
+
+					BackendHandler::RenderVAO(depthOfFieldEffect->GetShaders()[1], renderer.Mesh, viewProjection, transform, lightProjectionMatrix);
+				}
+			});*/
+
+			//depthOfFieldEffect->UnbindBuffer();
+
 			basicEffect->BindBuffer(0);
 
 			waterMat->Set("u_WindowWidth", (float)width);
