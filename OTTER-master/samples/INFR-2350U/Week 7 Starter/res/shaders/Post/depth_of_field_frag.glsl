@@ -11,9 +11,6 @@ float depthEye;
 
 out vec4 frag_color;
 
-//layout(binding = 0) uniform sampler2D s_Scene;
-//layout(binding = 1) uniform sampler2D s_DepthOfField;
-
 float linearize_depth(float d, float zNear, float zFar)
 {
 	float z_n = 2.0 * d - 1.0;
@@ -37,9 +34,6 @@ float CalculateCircleOfConfusion(float depthEye)
 
 void main()
 {
-	//vec4 colorA = texture(s_Scene, inUV);
-	//vec4 colorB = texture(s_DepthOfField, inUV);
-
 	float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
 
 	frag_color.a = CalculateCircleOfConfusion(actualDepth);

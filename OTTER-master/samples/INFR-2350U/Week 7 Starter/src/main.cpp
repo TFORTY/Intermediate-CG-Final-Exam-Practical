@@ -118,11 +118,6 @@ int main() {
 		groundShader->SetUniform("u_Condition", condition);
 		waterShader->SetUniform("u_Condition", condition);
 
-		shader->SetUniform("u_NearPlane", 0.01f);
-		shader->SetUniform("u_FarPlane", 1000.0f);
-		groundShader->SetUniform("u_NearPlane", 0.01f);
-		groundShader->SetUniform("u_FarPlane", 1000.0f);
-
 		//Basic effect for drawing to
 		PostEffect* basicEffect; 
 		Framebuffer* shadowBuffer;
@@ -255,63 +250,31 @@ int main() {
 				if (activeEffect == 2) 
 				{ 
 					ImGui::Text("Active Effect: Color Correct Effect");  
-					   
+					     
 					ColorCorrectEffect* temp = (ColorCorrectEffect*)effects[activeEffect];
 				}
-				if (activeEffect == 3)
+				if (activeEffect == 3)  
 				{
 					ImGui::Text("Active Effect: Depth of Field Effect");
 
 					DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];
-					float passes = temp->GetPasses();
+					float focalDistance = temp->GetFocalDistance();
+					float focalLength = temp->GetFocalLength();
+					float aperature = temp->GetAperature();
 
-					if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
+					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.0f))//0.3-25
 					{
-						temp->SetPasses(passes);
+						temp->SetFocalDistance(focalDistance);
+					}
+					if (ImGui::SliderFloat("Focal Length", &focalLength, 0.0f, 25.0f))//0-25
+					{
+						temp->SetFocalLength(focalLength);
+					}
+					if (ImGui::SliderFloat("Aperature", &aperature, 0.0f, 3.f))//0.24-3
+					{
+						temp->SetAperature(aperature);
 					}
 				}
-				//if (activeEffect == 3) 
-				//{  
-				//	ImGui::Text("Active Effect: Depth of Field Effect");
-
-				//	DepthOfFieldEffect* temp = (DepthOfFieldEffect*)effects[activeEffect];				
-				//	float passes = temp->GetPasses();		
-				//	/*float nearPlane = temp->GetNearPlane(); 
-				//	float farPlane = temp->GetFarPlane();   
-				//	float focalDistance = temp->GetFocalDistance(); 
-				//	float focalLength = temp->GetFocalLength();
-				//	float aperature = temp->GetAperature();
-				//	float maxCoC = temp->GetMaxCoC();*/
-				//	
-				//	/*if (ImGui::SliderFloat("Blur Passes", &passes, 0.0f, 50.0f))
-				//	{
-				//		temp->SetPasses(passes);
-				//	}*/
-				//	/*if (ImGui::SliderFloat("Near Plane", &nearPlane, 0.01f, 1000.0f))
-				//	{
-				//		temp->SetNearPlane(nearPlane);
-				//	}
-				//	if (ImGui::SliderFloat("Far Plane", &farPlane, 1000.0f, 0.01f))
-				//	{ 
-				//		temp->SetFarPlane(farPlane);
-				//	}
-				//	if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.f))
-				//	{
-				//		temp->SetFocalDistance(focalDistance);
-				//	}
-				//	if (ImGui::SliderFloat("Focal Length", &focalLength, 0.f, 100.f))
-				//	{
-				//		temp->SetFocalLength(focalLength);
-				//	}
-				//	if (ImGui::SliderFloat("Aperature", &aperature, 0.24f, 3.f))
-				//	{
-				//		temp->SetAperature(aperature);
-				//	}
-				//	if (ImGui::SliderFloat("Max CoC", &maxCoC, 1.f, 0.f))
-				//	{
-				//		temp->SetMaxCoC(maxCoC);
-				//	}*/
-				//}
 			}
 			
 			if (ImGui::CollapsingHeader("Light Level Lighting Settings"))
@@ -780,7 +743,7 @@ int main() {
 
 			// Start by assuming no shader or material is applied
 			Shader::sptr current = nullptr;
-			ShaderMaterial::sptr currentMat = nullptr;
+			ShaderMaterial::sptr currentMat = nullptr; 
 
 			glViewport(0, 0, shadowWidth, shadowHeight);
 			shadowBuffer->Bind();
@@ -798,19 +761,6 @@ int main() {
 			glfwGetWindowSize(BackendHandler::window, &width, &height);
 
 			glViewport(0, 0, width, height);
-
-			//depthOfFieldEffect->BindBuffer(0);
-
-			/*renderGroup.each([&](entt::entity e, RendererComponent& renderer, Transform& transform) {
-				if (activeEffect == 3)
-				{
-					depthOfFieldEffect->GetShaders()[1]->Bind();
-
-					BackendHandler::RenderVAO(depthOfFieldEffect->GetShaders()[1], renderer.Mesh, viewProjection, transform, lightProjectionMatrix);
-				}
-			});*/
-
-			//depthOfFieldEffect->UnbindBuffer();
 
 			basicEffect->BindBuffer(0);
 
