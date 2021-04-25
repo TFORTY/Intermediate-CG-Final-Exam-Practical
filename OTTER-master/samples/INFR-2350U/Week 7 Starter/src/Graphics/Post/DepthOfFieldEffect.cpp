@@ -44,7 +44,7 @@ void DepthOfFieldEffect::Init(unsigned width, unsigned height)
     _shaders[index2]->LoadShaderPartFromFile("shaders/Post/dof_frag.glsl", GL_FRAGMENT_SHADER);
     _shaders[index2]->Link();
 
-    //_pixelSize = glm::vec2(1.f / width, 1.f / height);
+    ////_pixelSize = glm::vec2(1.f / width, 1.f / height);
 
     PostEffect::Init(width, height);
 }
@@ -100,12 +100,12 @@ void DepthOfFieldEffect::ApplyEffect(PostEffect* buffer)
     UnbindShader();
 }
 
-void DepthOfFieldEffect::Reshape(unsigned width, unsigned height)
-{
-    _buffers[0]->Reshape(width, height);
-    _buffers[1]->Reshape(width, height);
-    _buffers[2]->Reshape(width, height);
-    //_buffers[1]->Reshape((float)width / _downscale, (float)height / _downscale);
-    //_buffers[2]->Reshape((float)width / _downscale, (float)height / _downscale);
-    //_buffers[3]->Reshape(width, height);
-}
+//void DepthOfFieldEffect::Reshape(unsigned width, unsigned height)
+//{
+//   /* _buffers[0]->Reshape(width, height);
+//    _buffers[1]->Reshape(width, height);
+//    _buffers[2]->Reshape(width, height);*/
+//    //_buffers[1]->Reshape((float)width / _downscale, (float)height / _downscale);
+//    //_buffers[2]->Reshape((float)width / _downscale, (float)height / _downscale);
+//    //_buffers[3]->Reshape(width, height);
+//}

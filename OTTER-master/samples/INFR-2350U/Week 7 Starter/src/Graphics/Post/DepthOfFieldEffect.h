@@ -9,7 +9,7 @@ public:
 
 	void ApplyEffect(PostEffect* buffer) override;
 
-	void Reshape(unsigned width, unsigned height) override;
+	//void Reshape(unsigned width, unsigned height) override;
 
 	//Getters
 	//float GetDownscale() const { return _downscale; }
