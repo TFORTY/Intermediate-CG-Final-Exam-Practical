@@ -6,11 +6,11 @@ layout(binding = 0) uniform sampler2D s_screenTex;
 
 uniform bool horizontal;
 
-const float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 
 out vec4 frag_color;
 
-//https://learnopengl.com/Advanced-Lighting/Bloom
+//Taken from https://learnopengl.com/Advanced-Lighting/Bloom
 void main()
 {
 	vec2 tex_offset = 1.0 / textureSize(s_screenTex, 0);

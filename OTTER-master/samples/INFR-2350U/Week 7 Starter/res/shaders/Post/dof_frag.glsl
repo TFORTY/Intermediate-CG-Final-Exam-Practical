@@ -14,6 +14,8 @@ uniform float u_farPlane;
 
 out vec4 frag_Color;
 
+float MaxCoC = 1.0;
+
 //From water tutorial
 float linearize_depth(float d, float zNear, float zFar)
 {
@@ -21,21 +23,19 @@ float linearize_depth(float d, float zNear, float zFar)
 	return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
 }
 
+//Formulas referenced from assignment outline
 float CalculateCircleOfConfusion()
 {
 	float CoCScale = (u_aperature * u_focalLength * u_focalDistance * (u_farPlane - u_nearPlane)) / ((u_focalDistance - u_focalLength) * u_nearPlane * u_farPlane);
 
 	float CoCBias = (u_aperature * u_focalLength * (u_nearPlane - u_focalDistance)) / ((u_focalDistance * u_focalLength) * u_nearPlane);
 
-	//float actualDepth = linearize_depth(gl_FragCoord.z, 0.01, 1000.0);
-
-	//float CoC = abs(actualDepth * CoCScale + CoCBias);
-
 	float actualDepth = linearize_depth(texture(s_Depth, inUV).x, 0.01, 1000.0);
 
 	float CoC = abs(actualDepth * CoCScale + CoCBias);
 
-	CoC = clamp(1.0 - CoC, 0.0f, 1.0f);
+	//Referenced from https://github.com/jamesy012/Mallard-OpenGL-Engine/blob/master/_WorkingDir/Shaders/PostProcessing/DOF.frag
+	CoC = clamp(MaxCoC - CoC, 0.0, MaxCoC);
 
 	return CoC;
 }
@@ -44,7 +44,10 @@ void main()
 {
 	float CoC = CalculateCircleOfConfusion();
 
-	vec3 texColor = mix(texture2D(s_Scene, inUV), texture2D(s_Blur, inUV), 1.0 - CoC).rgb;
+	vec4 colorA = texture(s_Scene, inUV);
+	vec4 colorB = texture(s_Blur, inUV);
+
+	vec3 texColor = mix(colorA, colorB, MaxCoC - CoC).rgb;
 
 	frag_Color = vec4(texColor, 1.0);
 }

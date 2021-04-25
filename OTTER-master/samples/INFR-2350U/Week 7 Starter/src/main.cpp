@@ -135,6 +135,7 @@ int main() {
 		bool isAmbient = false;
 		bool isSpecular = false;
 		bool isAmbSpec = false;
+		bool isAmbSpecDOFSim = false;
 		bool isAmbSpecDOF = false;
 		  
 		// We'll add some ImGui controls to control our shader 
@@ -147,6 +148,7 @@ int main() {
 					isAmbient = false;
 					isSpecular = false;
 					isAmbSpec = false;		
+					isAmbSpecDOFSim = false;
 					isAmbSpecDOF = false;
 				}
 				if (ImGui::Checkbox("Ambient Lighting", &isAmbient))
@@ -155,6 +157,7 @@ int main() {
 					isNoLighting = false;
 					isSpecular = false;
 					isAmbSpec = false;
+					isAmbSpecDOFSim = false;
 					isAmbSpecDOF = false;
 				}
 				if (ImGui::Checkbox("Specular Lighting", &isSpecular))
@@ -163,23 +166,35 @@ int main() {
 					isNoLighting = false;
 					isAmbient = false;
 					isAmbSpec = false;
+					isAmbSpecDOFSim = false;
 					isAmbSpecDOF = false;
 				}
-				if (ImGui::Checkbox("Ambient + Specular Lighting", &isAmbSpec)) // + Diffuse
+				if (ImGui::Checkbox("Ambient + Specular Lighting", &isAmbSpec))
 				{
 					isAmbSpec = true;
 					isNoLighting = false;
 					isAmbient = false;
-					isSpecular = false;
+					isSpecular = false; 
+					isAmbSpecDOFSim = false;
 					isAmbSpecDOF = false;
 				}
-				if (ImGui::Checkbox("Ambient + Specular Lighting + DOF", &isAmbSpecDOF)) // + Diffuse
+				if (ImGui::Checkbox("Ambient + Specular Lighting + Depth Simulation", &isAmbSpecDOFSim))
 				{
-					isAmbSpecDOF = true;
+					isAmbSpecDOFSim = true;
 					isAmbSpec = false;
 					isNoLighting = false;
 					isAmbient = false;
 					isSpecular = false;
+					isAmbSpecDOF = false;
+				}
+				if (ImGui::Checkbox("Ambient + Specular Lighting + DOF", &isAmbSpecDOF))
+				{
+					isAmbSpecDOF = true;
+					isNoLighting = false;
+					isAmbient = false;
+					isSpecular = false;
+					isAmbSpec = false;
+					isAmbSpecDOFSim = false;
 				}
 
 				if (isNoLighting)
@@ -206,11 +221,18 @@ int main() {
 					groundShader->SetUniform("u_Condition", 3);
 					waterShader->SetUniform("u_Condition", 3);
 				}
-				else if (isAmbSpecDOF)
+				else if (isAmbSpecDOFSim)
 				{
 					shader->SetUniform("u_Condition", 4);
 					groundShader->SetUniform("u_Condition", 4);
 					waterShader->SetUniform("u_Condition", 3);
+				}
+				else if (isAmbSpecDOF)
+				{
+					shader->SetUniform("u_Condition", 3);
+					groundShader->SetUniform("u_Condition", 3);
+					waterShader->SetUniform("u_Condition", 3);
+					activeEffect = 3;
 				}
 
 				//Toggles textures on/off
@@ -245,9 +267,9 @@ int main() {
 					if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 1.0f))
 					{
 						temp->SetIntensity(intensity);
-					}   
-				}   
-				if (activeEffect == 2) 
+					}    
+				}    
+				if (activeEffect == 2)     
 				{ 
 					ImGui::Text("Active Effect: Color Correct Effect");  
 					     
@@ -262,18 +284,18 @@ int main() {
 					float focalLength = temp->GetFocalLength();
 					float aperature = temp->GetAperature();
 
-					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.3f, 25.0f))//0.3-25
+					if (ImGui::SliderFloat("Focal Distance", &focalDistance, 0.0f, 25.0f))
 					{
 						temp->SetFocalDistance(focalDistance);
 					}
-					if (ImGui::SliderFloat("Focal Length", &focalLength, 0.0f, 25.0f))//0-25
+					if (ImGui::SliderFloat("Focal Length", &focalLength, 0.0f, 25.0f))
 					{
 						temp->SetFocalLength(focalLength);
 					}
-					if (ImGui::SliderFloat("Aperature", &aperature, 0.0f, 3.f))//0.24-3
+					if (ImGui::SliderFloat("Aperature", &aperature, 0.0f, 3.f))
 					{
 						temp->SetAperature(aperature);
-					}
+					}    
 				}
 			}
 			
